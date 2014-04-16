@@ -8,10 +8,12 @@ class OpBot:
 		self.server = "Server"
 		self.port = 6667
 		self.channel = "#channel"
-		self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-		self.pingtimeout = 5 * 60 # 5 min
-		self.last_ping = 0.0
+		self.init_socket()
 		self.whitelist = ["nick1", "nick2"]
+	
+	def init_socket(self):
+		self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.ircsock.settimeout(4*60) # 4 min
 
 	def execute(self):
 		self.connect()
@@ -22,23 +24,27 @@ class OpBot:
 			  	ircmsg = ircmsg.strip('\n\r')
 				self.log(ircmsg) 
 				self.activities(ircmsg)
-				if (time.time() - self.last_ping) > self.pingtimeout:
-					raise socket.timeout
-				time.sleep(1)
 			except socket.timeout:
-				self.log("ERROR: timeout!")
+				self.log("Timeout error")
 				self.connect()
 
 	def connect(self):
-		# Connect to irc server
-		self.ircsock.connect((self.server, self.port))
-		self.ircsock.send("USER " + self.nick + " 0 * : " + self.nick + "\r\n")
-		self.ircsock.send("NICK " + self.nick + "\n")
-		time.sleep(5)
-		# Join the channel
-		self.ircsock.send("JOIN "+ self.channel +"\r\n")
-		self.sendmsg("Someone OP me plz!")
-		self.last_ping = time.time()
+		self.ircsock.close()
+		self.init_socket()
+		try:
+			# Connect to irc server
+			self.log("Connecting to server " + self.server)
+			self.ircsock.connect((self.server, self.port))
+			self.ircsock.send("USER " + self.nick + " 0 * : " + self.nick + "\r\n")
+			self.ircsock.send("NICK " + self.nick + "\n")
+			time.sleep(5)
+			# Join the channel
+			self.ircsock.send("JOIN "+ self.channel +"\r\n")
+			self.sendmsg("Someone OP me plz!")
+		except socket.gaierror:
+			self.log("Connection error, trying again in 1 minute")
+			time.sleep(60)
+			self.connect()
 
 	def log(self, msg):
 		# Print a timestamp and message
@@ -48,8 +54,7 @@ class OpBot:
 	def activities(self, msg):
 		# Check what activites should be done 
 		if msg.find("PING :") != -1: 
-			# Ping recieved from server
-			self.last_ping = time.time()	
+			# Ping recieved from server	
 			self.pong()
 	  	if msg.find("JOIN :" + self.channel ) != -1:
 	  		# Someone joined the channel
