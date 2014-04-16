@@ -1,5 +1,7 @@
 import socket
 import time
+import logging
+import logging.handlers
 
 class OpBot:
 
@@ -10,6 +12,12 @@ class OpBot:
 		self.channel = "#channel"
 		self.init_socket()
 		self.whitelist = ["nick1", "nick2"]
+		# Setup logging
+		logging.basicConfig(filename="log.txt", level=logging.INFO, 
+			format='%(asctime)s %(message)s', datefmt='[%H:%M:%S] %p')
+		self.logger = logging.getLogger(__name__)
+		handler = logging.handlers.RotatingFileHandler("log.txt", maxBytes=10485760)
+		self.logger.addHandler(handler)
 	
 	def init_socket(self):
 		self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -22,10 +30,10 @@ class OpBot:
 			try:
 			  	ircmsg = self.ircsock.recv(2048) 
 			  	ircmsg = ircmsg.strip('\n\r')
-				self.log(ircmsg) 
+				self.logger.info(ircmsg) 
 				self.activities(ircmsg)
 			except socket.timeout:
-				self.log("Timeout error")
+				self.logger.warning("Timeout error")
 				self.connect()
 
 	def connect(self):
@@ -33,7 +41,7 @@ class OpBot:
 		self.init_socket()
 		try:
 			# Connect to irc server
-			self.log("Connecting to server " + self.server)
+			self.logger.info("Connecting to server " + self.server)
 			self.ircsock.connect((self.server, self.port))
 			self.ircsock.send("USER " + self.nick + " 0 * : " + self.nick + "\r\n")
 			self.ircsock.send("NICK " + self.nick + "\n")
@@ -42,14 +50,9 @@ class OpBot:
 			self.ircsock.send("JOIN "+ self.channel +"\r\n")
 			self.sendmsg("Someone OP me plz!")
 		except socket.gaierror:
-			self.log("Connection error, trying again in 1 minute")
+			self.logger.warning("Connection error, trying again in 1 minute")
 			time.sleep(60)
 			self.connect()
-
-	def log(self, msg):
-		# Print a timestamp and message
-		timestamp = time.strftime("%H:%M:%S")
-		print("[" + timestamp + "] " + msg)
 
 	def activities(self, msg):
 		# Check what activites should be done 
