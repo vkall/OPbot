@@ -60,7 +60,7 @@ class OpBot:
 	  		# Someone joined the channel
 	  		n = self.get_nick(msg)
 	  		for approved_nick in self.whitelist:
-	  			if approved_nick in n:
+	  			if approved_nick.lower() in n.lower():
 					self.op(n)
 					break
 
