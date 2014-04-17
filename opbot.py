@@ -1,7 +1,7 @@
 import socket
 import time
 import logging
-import logging.handlers
+import logging.config
 
 class OpBot:
 
@@ -13,11 +13,8 @@ class OpBot:
 		self.init_socket()
 		self.whitelist = ["nick1", "nick2"]
 		# Setup logging
-		logging.basicConfig(filename="log.txt", level=logging.INFO, 
-			format='%(asctime)s %(message)s', datefmt='[%H:%M:%S] %p')
+		logging.config.fileConfig('log.conf')
 		self.logger = logging.getLogger(__name__)
-		handler = logging.handlers.RotatingFileHandler("log.txt", maxBytes=10485760)
-		self.logger.addHandler(handler)
 	
 	def init_socket(self):
 		self.ircsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
