@@ -33,13 +33,17 @@ class yr:
 	# Returns an array of weather maps
 	def get_weather(self, url):
 		p = urllib2.urlopen(url).read()
-		return self.parse_xml(p)
+		norway = ("Norway" in url)
+		return self.parse_xml(p, norway)
 
 
 	# Private: Parses url data to a structure
-	def parse_xml(self, data):
+	def parse_xml(self, data, norway):
 		tree = et.fromstring(data)
-		forecasts_xml = tree.find("forecast")[0]
+		if norway:
+			forecasts_xml = tree.find("forecast")[1]
+		else:
+			forecasts_xml = tree.find("forecast")[0]
 		weather = [
 			{
 				'weather': forecast.find("symbol").attrib,
