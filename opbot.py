@@ -112,7 +112,7 @@ class OpBot:
 			self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
 			self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
 		else:
-			self.sendmsg("Could not find city " + city)
+			self.sendmsg("Could not find city " + city.encode("utf-8"))
 		conn.close()
 
 if __name__ == "__main__":
