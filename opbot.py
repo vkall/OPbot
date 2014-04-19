@@ -3,10 +3,12 @@ import time
 import logging
 import logging.config
 import ConfigParser
+from yr import yr
 
 class OpBot:
 
 	def __init__(self):
+		# Irc settings
 		self.conf = ConfigParser.RawConfigParser()
 		self.conf.read("settings.conf")
 		self.nick = self.conf.get("settings", "nick")
@@ -66,6 +68,14 @@ class OpBot:
 	  			if approved_nick.lower() in n.lower():
 					self.op(n)
 					break
+		if msg.find(".weather ") != -1:
+			city = msg.split(".weather ")[1]
+			city = city.split(" ")[0]
+			city = city.decode("utf-8").lower() 
+			self.conf.read("settings.conf")
+			if city.encode("utf-8") in self.conf.get("weather", "cities"):
+				self.weather(city)
+
 
 	def pong(self):
 		# Pong the server 
@@ -87,6 +97,15 @@ class OpBot:
 		nick = nick.strip(' \t\n\r')
 		return nick
 
+	def weather(self, city):
+		geoname = self.conf.get("weather", city.encode("utf-8"))
+		print "Weather for " + geoname
+		y = yr(geoname)
+		w = y.weather[0]
+		self.sendmsg("Weather in " + city.capitalize().encode("utf-8") + ": " + w["weather"]["name"])
+		self.sendmsg("Temperature: " + w["temperature"]["value"] + " C")
+		self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
+		self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
 
 if __name__ == "__main__":
 	bot = OpBot()
