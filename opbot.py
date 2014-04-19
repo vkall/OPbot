@@ -2,18 +2,21 @@ import socket
 import time
 import logging
 import logging.config
+import ConfigParser
 
 class OpBot:
 
 	def __init__(self):
-		self.nick = "BotNick"
-		self.server = "Server"
-		self.port = 6667
-		self.channel = "#channel"
+		self.conf = ConfigParser.RawConfigParser()
+		self.conf.read("settings.conf")
+		self.nick = self.conf.get("settings", "nick")
+		self.server = self.conf.get("settings", "server")
+		self.port = self.conf.getint("settings", "port")
+		self.channel = self.conf.get("settings", "channel")
+		self.whitelist = self.conf.get("settings", "whitelist")
 		self.init_socket()
-		self.whitelist = ["nick1", "nick2"]
 		# Setup logging
-		logging.config.fileConfig('log.conf')
+		logging.config.fileConfig(self.conf.get("settings", "logconfig"))
 		self.logger = logging.getLogger(__name__)
 	
 	def init_socket(self):
