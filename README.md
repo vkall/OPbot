@@ -17,5 +17,6 @@ whitelist = ["nick1", "nick2"]
 - Run with python `python opbot.py`
 - The bot needs op before it can give op to others
 - The weather function can be called by typing `.weather [city]` in the channel
+- City names and geonames are saved in a sqlite3 database. (`geoames.sql`)
 - For more information on the weather service, please refer to https://github.com/KarlHerler/yr-py
 
