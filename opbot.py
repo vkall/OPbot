@@ -105,12 +105,15 @@ class OpBot:
 		if row != None:
 			geoname = row[1].encode("utf-8")
 			print "Weather for " + geoname
-			y = yr(geoname)
-			w = y.weather[0]
-			self.sendmsg("Weather in " + city.capitalize().encode("utf-8") + ": " + w["weather"]["name"])
-			self.sendmsg("Temperature: " + w["temperature"]["value"] + " C")
-			self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
-			self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
+			try:
+				y = yr(geoname)
+				w = y.weather[0]
+				self.sendmsg("Weather in " + city.capitalize().encode("utf-8") + ": " + w["weather"]["name"])
+				self.sendmsg("Temperature: " + w["temperature"]["value"] + " C")
+				self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
+				self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
+			except:
+				self.sendmsg("Problem requesting weather for " + geoname)
 		else:
 			self.sendmsg("Could not find city " + city.encode("utf-8"))
 		conn.close()
