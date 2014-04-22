@@ -33,8 +33,9 @@ class OpBot:
 			try:
 			  	ircmsg = self.ircsock.recv(2048) 
 			  	ircmsg = ircmsg.strip('\n\r')
-				self.logger.info(ircmsg) 
-				self.activities(ircmsg)
+			  	if ircmsg != "":
+					self.logger.info(ircmsg) 
+					self.activities(ircmsg)
 			except socket.timeout:
 				self.logger.warning("Timeout error")
 				self.connect()
