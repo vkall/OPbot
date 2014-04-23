@@ -59,7 +59,9 @@ class OpBot:
 			self.connect()
 
 	def activities(self, msg):
-		# Check what activites should be done 
+		# Check what activites should be done
+		if msg.find("ERROR :Closing Link:")  != -1:
+			raise socket.timeout
 		if msg.find("PING :") != -1: 
 			# Ping recieved from server	
 			self.pong()
@@ -113,7 +115,7 @@ class OpBot:
 				self.sendmsg("Temperature: " + w["temperature"]["value"] + " C")
 				self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
 				self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
-			except:
+			except Exception:
 				self.sendmsg("Problem requesting weather for " + geoname)
 		else:
 			self.sendmsg("Could not find city " + city.encode("utf-8"))
