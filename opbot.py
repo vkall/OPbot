@@ -16,7 +16,7 @@ class OpBot:
 		self.server = self.conf.get("settings", "server")
 		self.port = self.conf.getint("settings", "port")
 		self.channel = self.conf.get("settings", "channel")
-		self.whitelist = self.conf.get("settings", "whitelist")
+		self.whitelist = self.conf.get("settings", "whitelist").split(",")
 		self.init_socket()
 		# Setup logging
 		logging.config.fileConfig(self.conf.get("settings", "logconfig"))
