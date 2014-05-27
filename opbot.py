@@ -107,11 +107,12 @@ class OpBot:
 		row = cur.fetchone()
 		if row != None:
 			geoname = row[1].encode("utf-8")
+			city = row[0].encode("utf-8")
 			print "Weather for " + geoname
 			try:
 				y = yr(geoname)
 				w = y.weather[0]
-				self.sendmsg("Weather in " + city.capitalize().encode("utf-8") + ": " + w["weather"]["name"])
+				self.sendmsg("Weather in " + city.capitalize() + ": " + w["weather"]["name"])
 				self.sendmsg("Temperature: " + w["temperature"]["value"] + " C")
 				self.sendmsg("Rain: " + w["precipitation"]["value"] + " mm")
 				self.sendmsg("Wind: " + w["wind"]["speed"]["mps"] + " m/s " + w["wind"]["direction"]["name"])
