@@ -53,16 +53,16 @@ class OpBot:
 			# Join the channel
 			self.ircsock.send("JOIN "+ self.channel +"\r\n")
 			self.sendmsg("Someone OP me plz!")
-		except socket.gaierror:
+		except (socket.gaierror, socket.timeout):
 			self.logger.warning("Connection error, trying again in 1 minute")
 			time.sleep(60)
 			self.connect()
 
 	def activities(self, msg):
 		# Check what activites should be done
-		if msg.find("ERROR :Closing Link:")  != -1:
+		if msg.find("ERROR :Closing Link:") == 0:
 			raise socket.timeout
-		if msg.find("PING :") != -1: 
+		if msg.find("PING :") == 0: 
 			# Ping recieved from server	
 			self.pong()
 	  	if msg.find("JOIN :" + self.channel ) != -1:
@@ -78,10 +78,16 @@ class OpBot:
 			city = city.decode("utf-8").lower()
 			if city != "":
 				self.weather(city)
+		if msg.find(".w ") != -1:
+			city = msg.split(".w ")[1]
+			city = city.split(" ")[0] 
+			city = city.decode("utf-8").lower()
+			if city != "":
+				self.weather(city)
 
 
 	def pong(self):
-		# Pong the server 
+		# Pong the server
 		self.ircsock.send("PONG :Pong\r\n") 
 
 	def sendmsg(self, msg):
