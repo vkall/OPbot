@@ -4,6 +4,7 @@ import logging
 import logging.config
 import ConfigParser
 import sqlite3
+import urllib
 import urllib2
 from bs4 import BeautifulSoup
 from yr import yr
@@ -140,7 +141,7 @@ class OpBot:
 
         def currency_exchange(self, fromCur, toCur, amount):
                 amount = amount.replace(",",".")
-                url = "http://www.google.com/finance/converter?a=" + amount +"&from=" + fromCur +"&to=" + toCur
+                url = "http://www.google.com/finance/converter?a=" + urllib.quote(amount) +"&from=" + urllib.quote(fromCur) +"&to=" + urllib.quote(toCur)
                 print "Exchange: " + url
                 response = urllib2.urlopen(url)
                 soup = BeautifulSoup(response.read())
