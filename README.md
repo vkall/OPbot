@@ -1,6 +1,8 @@
 #OpBot
-This is an irc bot that gives people (that are on a whitelist) op when they join a channel.
-It can also check the weather by using the yr.no service.  
+This is an irc bot with the following functionalities: 
+- Gives people that are on a whitelist op when they join the channel.
+- Checks the weather by using the yr.no service.  `.w [city]`
+- Converts currencies using the http://www.google.com/finance/converter service. `.ex [amount] [fromCurrency] [toCurrency]`
 
 ##Setup
 Change these values in `settings.conf` before usage:
@@ -10,7 +12,7 @@ nick = BotNick
 server = Irc.Server
 port = IrcPort
 channel = #IrcChannel
-whitelist = ["nick1", "nick2"]
+whitelist = nick1,nick2,nick3
 ```
 
 ##Usage
