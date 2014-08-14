@@ -4,6 +4,8 @@ import logging
 import logging.config
 import ConfigParser
 import sqlite3
+import urllib2
+from bs4 import BeautifulSoup
 from yr import yr
 
 class OpBot:
@@ -84,6 +86,14 @@ class OpBot:
 			city = city.decode("utf-8").lower()
 			if city != "":
 				self.weather(city)
+		if msg.find(".ex ") != -1:
+                        ex_input = msg.split(".ex ")[1]
+                        ex_input = ex_input.split(" ")
+                        if len(ex_input) >= 3:
+                                self.currency_exchange(ex_input[1], ex_input[2], ex_input[0])
+                        else:
+                                self.sendmsg("Exchange input must be '.ex amount fromCurrency toCurrency'")
+
 
 
 	def pong(self):
@@ -127,6 +137,18 @@ class OpBot:
 		else:
 			self.sendmsg("Could not find city " + city.encode("utf-8"))
 		conn.close()
+
+        def currency_exchange(self, fromCur, toCur, amount):
+                amount = amount.replace(",",".")
+                url = "http://www.google.com/finance/converter?a=" + amount +"&from=" + fromCur +"&to=" + toCur
+                print "Exchange: " + url
+                response = urllib2.urlopen(url)
+                soup = BeautifulSoup(response.read())
+                resultdiv = soup.find("div", {"id":"currency_converter_result"})
+                if resultdiv.span is not None:
+                        self.sendmsg(resultdiv.contents[0] + resultdiv.span.contents[0])
+                else:
+                        self.sendmsg("Could not convert " + amount + " " + fromCur + " to " + toCur)
 
 if __name__ == "__main__":
 	bot = OpBot()
