@@ -8,6 +8,7 @@ import urllib
 import urllib2
 from bs4 import BeautifulSoup
 from yr import yr
+import random 
 
 class OpBot:
 
@@ -94,6 +95,8 @@ class OpBot:
                                 self.currency_exchange(ex_input[1], ex_input[2], ex_input[0])
                         else:
                                 self.sendmsg("Exchange input must be '.ex amount fromCurrency toCurrency'")
+		if msg.find(".8ball ") != -1:
+			self.eightball()
 
 
 
@@ -150,7 +153,14 @@ class OpBot:
                         self.sendmsg(resultdiv.contents[0] + resultdiv.span.contents[0])
                 else:
                         self.sendmsg("Could not convert " + amount + " " + fromCur + " to " + toCur)
-
+						
+        def eightball(self):
+			theMatrix=["It is certain","It is decidedly so","Without a doubt","Yes definitely","You may rely on it","As I see it, yes","Most likely","Outlook good","Yes","Signs point to yes","Reply hazy try again","Ask again later","Better not tell you now","Only in Glorious Pampas","Cannot predict now","Concentrate and ask again","Don't count on it","My reply is no","My sources say no","Outlook not so good","Very doubtful"]
+			theChosenOne = random.randint(0, len(theMatrix))
+			self.sendmsg(theMatrix[theChosenOne])
+                
+   
+            
 if __name__ == "__main__":
 	bot = OpBot()
 	bot.execute()
