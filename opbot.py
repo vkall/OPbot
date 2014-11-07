@@ -38,7 +38,8 @@ class OpBot:
 			  	ircmsg = self.ircsock.recv(2048) 
 			  	ircmsg = ircmsg.strip('\n\r')
 			  	if ircmsg != "":
-					self.logger.info(ircmsg) 
+			  		if !ircmsg.startswith("PING :"):
+						self.logger.info(ircmsg) 
 					self.activities(ircmsg)
 			except socket.timeout:
 				self.logger.warning("Timeout error")
