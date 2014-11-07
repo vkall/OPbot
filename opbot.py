@@ -1,14 +1,15 @@
-import socket
-import time
+import ConfigParser
 import logging
 import logging.config
-import ConfigParser
+import random
+import re
+import socket
 import sqlite3
+import threading
+import time
 import urllib
 import urllib2
-import threading
-import re
-import random
+
 from bs4 import BeautifulSoup
 from yr import yr
 
@@ -111,13 +112,12 @@ class OpBot:
 			if url:
 				for u in url:
 					try:
-						print "Found link " + u
-						logging.info("Found link " + u)
+						print "Found url " + u
 						t = threading.Thread(target=self.getUrlTitle, args=(u.rstrip(),))
 						t.daemon = True
 						t.start()
 					except:
-						logging.info("Couldn't parse url " + u)
+						print "Couldn't parse url " + u
 
 		else:
 			# Other server events
@@ -190,33 +190,61 @@ class OpBot:
 			self.sendmsg("Could not convert " + amount + " " + fromCur + " to " + toCur)
 					
 	def eightball(self):
-		theMatrix=["It is certain","It is decidedly so","Without a doubt","Yes definitely","You may rely on it","As I see it, yes","Most likely","Outlook good","Yes","Signs point to yes","Reply hazy try again","Ask again later","Better not tell you now","Only in Glorious Pampas","Cannot predict now","Concentrate and ask again","Don't count on it","My reply is no","My sources say no","Outlook not so good","Very doubtful"]
+		theMatrix = [
+					"It is certain",
+					"It is decidedly so",
+					"Without a doubt",
+					"Yes definitely",
+					"You may rely on it",
+					"As I see it, yes",
+					"Most likely",
+					"Outlook good",
+					"Yes",
+					"Signs point to yes",
+					"Reply hazy try again",
+					"Ask again later",
+					"Better not tell you now",
+					"Only in Glorious Pampas",
+					"Cannot predict now",
+					"Concentrate and ask again",
+					"Don't count on it",
+					"My reply is no",
+					"My sources say no",
+					"Outlook not so good",
+					"Very doubtful"
+				]
 		theChosenOne = random.randint(0, len(theMatrix)-1)
 		self.sendmsg(theMatrix[theChosenOne])
 				
 	def getUrlTitle(self, url):
-		#Fetches title even when direct image link is posted
-		imgurPicOnlyReg = re.compile(r"(http://|https://)i\.imgur\.com/[^ ]+(\.jpg|\.png|\.gif)")
-		imgurPicOnly = imgurPicOnlyReg.findall(url)
-		if imgurPicOnly:
-			url=url[:-4]
+		try:
+			#Fetches title even when direct image link is posted
+			imgurPicOnlyReg = re.compile(r"(http://|https://)i\.imgur\.com/[^ ]+(\.jpg|\.png|\.gif)")
+			imgurPicOnly = imgurPicOnlyReg.findall(url)
+			if imgurPicOnly:
+				url=url[:-4]
 
-		html = urllib2.urlopen(url).read()
-		soup = BeautifulSoup(html)
-		title = soup.title.string
-		if isinstance(title, unicode):
-			title = title.splitlines()
-		else:
-			title = title.rstrip(["\n","\r"])
-		t = ""
-		for i in title:
-			t = t + i
-		t = t.encode("utf-8").strip()
-		print url + " " + str(t)
-		message = url + " " + str(t)
-		if (len(message) > 65):
-			message = str(t)
-		self.sendmsg(message)
+			html = urllib2.urlopen(url).read()
+			soup = BeautifulSoup(html)
+			title = soup.title.string
+			if isinstance(title, unicode):
+				title = title.splitlines()
+			else:
+				title = title.rstrip(["\n","\r"])
+			t = ""
+			for i in title:
+				t = t + i
+			t = t.encode("utf-8").strip()
+			if (len(url) > 40):
+				# tinyurl long links http://tinyurl.com/api-create.php?url=
+				u = urllib2.urlopen("http://tinyurl.com/api-create.php?url=" + url).read()
+				if u.startswith("http://tinyurl.com/"):
+					url = u
+			self.sendmsg(url + " -- " + str(t))
+			self.logger.info(url + " -- " + str(t))
+		except urllib2.HTTPError, e:
+			print "Error parsing url: " + str(e.code) + " " + e.msg
+			self.logger.info("Error parsing url: " + str(e.code) + " " + e.msg)
    
 			
 if __name__ == "__main__":
