@@ -63,41 +63,49 @@ class OpBot:
 			self.connect()
 
 	def activities(self, msg):
-		# Check what activites should be done
-		if msg.find("ERROR :Closing Link:") == 0:
-			raise socket.timeout
-		if msg.find("PING :") == 0: 
-			# Ping recieved from server	
-			self.pong()
-	  	if msg.find("JOIN :" + self.channel ) != -1:
-	  		# Someone joined the channel
-	  		n = self.get_nick(msg)
-	  		for approved_nick in self.whitelist:
-	  			if approved_nick.lower() in n.lower():
-					self.op(n)
-					break
-		if msg.find(".weather ") != -1:
-			city = msg.split(".weather ")[1]
-			city = city.split(" ")[0] 
-			city = city.decode("utf-8").lower()
-			if city != "":
-				self.weather(city)
-		if msg.find(".w ") != -1:
-			city = msg.split(".w ")[1]
-			city = city.split(" ")[0] 
-			city = city.decode("utf-8").lower()
-			if city != "":
-				self.weather(city)
-		if msg.find(".ex ") != -1:
-                        ex_input = msg.split(".ex ")[1]
-                        ex_input = ex_input.split(" ")
-                        if len(ex_input) >= 3:
-                                self.currency_exchange(ex_input[1], ex_input[2], ex_input[0])
-                        else:
-                                self.sendmsg("Exchange input must be '.ex amount fromCurrency toCurrency'")
-		if msg.find(".8ball ") != -1:
-			self.eightball()
+		split_msg = msg.split(self.channel + " :")
 
+		if len(split_msg) > 0 and split_msg[0].endswith("PRIVMSG "):
+			# commands that users call in chat
+			if split_msg[1].startswith(".weather "):
+				city = split_msg[1].split(".weather ")[1]
+				city = city.split(" ")[0] 
+				city = city.decode("utf-8").lower()
+				if city != "":
+					self.weather(city)
+
+			elif split_msg[1].startswith(".w "):
+				city = split_msg[1].split(".w ")[1]
+				city = city.split(" ")[0] 
+				city = city.decode("utf-8").lower()
+				if city != "":
+					self.weather(city)
+
+			elif split_msg[1].startswith(".ex "):
+				ex_input = split_msg[1].split(".ex ")[1]
+				ex_input = ex_input.split(" ")
+				if len(ex_input) >= 3:
+					self.currency_exchange(ex_input[1], ex_input[2], ex_input[0])
+				else:
+					self.sendmsg("Exchange input must be '.ex amount fromCurrency toCurrency'")
+			
+			elif split_msg[1].startswith(".8ball "):
+				self.eightball()
+
+		else:
+			# Other server events
+			if msg.startswith("ERROR :Closing Link:"):
+				raise socket.timeout
+
+			elif msg.startswith("PING :"): 
+				self.pong()
+
+			elif msg.endswith("JOIN :" + self.channel ):
+			  		n = self.get_nick(msg)
+			  		for approved_nick in self.whitelist:
+			  			if approved_nick.lower() in n.lower():
+							self.op(n)
+							break
 
 
 	def pong(self):
@@ -142,25 +150,25 @@ class OpBot:
 			self.sendmsg("Could not find city " + city.encode("utf-8"))
 		conn.close()
 
-        def currency_exchange(self, fromCur, toCur, amount):
-                amount = amount.replace(",",".")
-                url = "http://www.google.com/finance/converter?a=" + urllib.quote(amount) +"&from=" + urllib.quote(fromCur) +"&to=" + urllib.quote(toCur)
-                print "Exchange: " + url
-                response = urllib2.urlopen(url)
-                soup = BeautifulSoup(response.read())
-                resultdiv = soup.find("div", {"id":"currency_converter_result"})
-                if resultdiv.span is not None:
-                        self.sendmsg(resultdiv.contents[0] + resultdiv.span.contents[0])
-                else:
-                        self.sendmsg("Could not convert " + amount + " " + fromCur + " to " + toCur)
-						
-        def eightball(self):
-			theMatrix=["It is certain","It is decidedly so","Without a doubt","Yes definitely","You may rely on it","As I see it, yes","Most likely","Outlook good","Yes","Signs point to yes","Reply hazy try again","Ask again later","Better not tell you now","Only in Glorious Pampas","Cannot predict now","Concentrate and ask again","Don't count on it","My reply is no","My sources say no","Outlook not so good","Very doubtful"]
-			theChosenOne = random.randint(0, len(theMatrix)-1)
-			self.sendmsg(theMatrix[theChosenOne])
-                
+	def currency_exchange(self, fromCur, toCur, amount):
+		amount = amount.replace(",",".")
+		url = "http://www.google.com/finance/converter?a=" + urllib.quote(amount) +"&from=" + urllib.quote(fromCur) +"&to=" + urllib.quote(toCur)
+		print "Exchange: " + url
+		response = urllib2.urlopen(url)
+		soup = BeautifulSoup(response.read())
+		resultdiv = soup.find("div", {"id":"currency_converter_result"})
+		if resultdiv.span is not None:
+			self.sendmsg(resultdiv.contents[0] + resultdiv.span.contents[0])
+		else:
+			self.sendmsg("Could not convert " + amount + " " + fromCur + " to " + toCur)
+					
+	def eightball(self):
+		theMatrix=["It is certain","It is decidedly so","Without a doubt","Yes definitely","You may rely on it","As I see it, yes","Most likely","Outlook good","Yes","Signs point to yes","Reply hazy try again","Ask again later","Better not tell you now","Only in Glorious Pampas","Cannot predict now","Concentrate and ask again","Don't count on it","My reply is no","My sources say no","Outlook not so good","Very doubtful"]
+		theChosenOne = random.randint(0, len(theMatrix)-1)
+		self.sendmsg(theMatrix[theChosenOne])
+				
    
-            
+			
 if __name__ == "__main__":
 	bot = OpBot()
 	bot.execute()
