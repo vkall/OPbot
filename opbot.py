@@ -6,9 +6,11 @@ import ConfigParser
 import sqlite3
 import urllib
 import urllib2
+import threading
+import re
+import random
 from bs4 import BeautifulSoup
 from yr import yr
-import random 
 
 class OpBot:
 
@@ -21,6 +23,7 @@ class OpBot:
 		self.port = self.conf.getint("settings", "port")
 		self.channel = self.conf.get("settings", "channel")
 		self.whitelist = self.conf.get("settings", "whitelist").split(",")
+		self.urlReg = re.compile(r"(http://[^ ]+|https://[^ ]+)")
 		self.init_socket()
 		# Setup logging
 		logging.config.fileConfig(self.conf.get("settings", "logconfig"))
@@ -104,6 +107,18 @@ class OpBot:
 				if opped == False:
 					self.sendmsg("The nick " + n + " is not in the whitelist")
 
+			url = self.urlReg.findall(split_msg[1])
+			if url:
+				for u in url:
+					try:
+						print "Found link " + u
+						logging.info("Found link " + u)
+						t = threading.Thread(target=self.getUrlTitle, args=(u.rstrip(),))
+						t.daemon = True
+						t.start()
+					except:
+						logging.info("Couldn't parse url " + u)
+
 		else:
 			# Other server events
 			if msg.startswith("ERROR :Closing Link:"):
@@ -179,6 +194,29 @@ class OpBot:
 		theChosenOne = random.randint(0, len(theMatrix)-1)
 		self.sendmsg(theMatrix[theChosenOne])
 				
+	def getUrlTitle(self, url):
+		#Fetches title even when direct image link is posted
+		imgurPicOnlyReg = re.compile(r"(http://|https://)i\.imgur\.com/[^ ]+(\.jpg|\.png|\.gif)")
+		imgurPicOnly = imgurPicOnlyReg.findall(url)
+		if imgurPicOnly:
+			url=url[:-4]
+
+		html = urllib2.urlopen(url).read()
+		soup = BeautifulSoup(html)
+		title = soup.title.string
+		if isinstance(title, unicode):
+			title = title.splitlines()
+		else:
+			title = title.rstrip(["\n","\r"])
+		t = ""
+		for i in title:
+			t = t + i
+		t = t.encode("utf-8").strip()
+		print url + " " + str(t)
+		message = url + " " + str(t)
+		if (len(message) > 65):
+			message = str(t)
+		self.sendmsg(message)
    
 			
 if __name__ == "__main__":
