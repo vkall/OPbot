@@ -38,7 +38,7 @@ class OpBot:
 			  	ircmsg = self.ircsock.recv(2048) 
 			  	ircmsg = ircmsg.strip('\n\r')
 			  	if ircmsg != "":
-			  		if !ircmsg.startswith("PING :"):
+			  		if ircmsg.startswith("PING :") == False:
 						self.logger.info(ircmsg) 
 					self.activities(ircmsg)
 			except socket.timeout:
@@ -58,7 +58,7 @@ class OpBot:
 			# Join the channel
 			self.ircsock.send("JOIN "+ self.channel +"\r\n")
 			self.sendmsg("Someone OP me plz!")
-		except (socket.gaierror, socket.timeout):
+		except (socket.gaierror, socket.timeout, socket.error):
 			self.logger.warning("Connection error, trying again in 1 minute")
 			time.sleep(60)
 			self.connect()
@@ -67,7 +67,7 @@ class OpBot:
 		split_msg = msg.split(self.channel + " :")
 
 		if len(split_msg) > 0 and split_msg[0].endswith("PRIVMSG "):
-			# commands that users call in chat
+			# commands called from chat
 			if split_msg[1].startswith(".weather "):
 				city = split_msg[1].split(".weather ")[1]
 				city = city.split(" ")[0] 
@@ -93,6 +93,17 @@ class OpBot:
 			elif split_msg[1].startswith(".8ball "):
 				self.eightball()
 
+			elif split_msg[1].startswith(".op"):
+				n = self.get_nick(msg)
+				opped = False
+			  	for approved_nick in self.whitelist:
+		  			if approved_nick.lower() in n.lower():
+						self.op(n)
+						opped = True
+						break
+				if opped == False:
+					self.sendmsg("The nick " + n + " is not in the whitelist")
+
 		else:
 			# Other server events
 			if msg.startswith("ERROR :Closing Link:"):
@@ -102,11 +113,11 @@ class OpBot:
 				self.pong()
 
 			elif msg.endswith("JOIN :" + self.channel ):
-			  		n = self.get_nick(msg)
-			  		for approved_nick in self.whitelist:
-			  			if approved_nick.lower() in n.lower():
-							self.op(n)
-							break
+		  		n = self.get_nick(msg)
+				for approved_nick in self.whitelist:
+		 			if approved_nick.lower() in n.lower():
+						self.op(n)
+						break
 
 
 	def pong(self):
