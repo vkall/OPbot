@@ -235,13 +235,9 @@ class OpBot:
 			for i in title:
 				t = t + i
 			t = t.encode("utf-8").strip()
-			if (len(url) > 40):
-				# tinyurl long links http://tinyurl.com/api-create.php?url=
-				u = urllib2.urlopen("http://tinyurl.com/api-create.php?url=" + url).read()
-				if u.startswith("http://tinyurl.com/"):
-					url = u
-			self.sendmsg(url + " -- " + str(t))
-			self.logger.info(url + " -- " + str(t))
+			if t != "":
+				self.sendmsg(str(t))
+				self.logger.info("url title: " + str(t))
 		except urllib2.HTTPError, e:
 			print "Error parsing url: " + str(e.code) + " " + e.msg
 			self.logger.info("Error parsing url: " + str(e.code) + " " + e.msg)
