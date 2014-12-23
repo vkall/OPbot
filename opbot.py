@@ -219,7 +219,7 @@ class OpBot:
 	def getUrlTitle(self, url):
 		try:
 			#Fetches title even when direct image link is posted
-			imgurPicOnlyReg = re.compile(r"(http://|https://)i\.imgur\.com/[^ ]+(\.jpg|\.png|\.gif|\.gifv)")
+			imgurPicOnlyReg = re.compile(r"(http://|https://)i\.imgur\.com/[^ ]+(\.jpg|\.png|\.gif)$")
 			imgurPicOnly = imgurPicOnlyReg.findall(url)
 			if imgurPicOnly:
 				url=url[:-4]
