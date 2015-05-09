@@ -3,6 +3,8 @@ This is an irc bot with the following functionalities:
 - Gives people that are on a whitelist op when they join the channel.
 - Checks the weather by using the yr.no service.  `.w [city]`
 - Converts currencies using the http://www.google.com/finance/converter service. `.ex [amount] [fromCurrency] [toCurrency]`
+- If a link is posted in the channel it gets the link title and posts it in the chat.
+- Magic 8-ball `.8ball [question]`
 
 ##Setup
 Change these values in `settings.conf` before usage:
