@@ -1,4 +1,4 @@
-#OpBot
+# OpBot
 This is an irc bot with the following functionalities: 
 - Gives people that are on a whitelist op when they join the channel.
 - Checks the weather by using the yr.no service.  `.w [city]`
@@ -6,7 +6,7 @@ This is an irc bot with the following functionalities:
 - If a link is posted in the channel it gets the link title and posts it in the chat.
 - Magic 8-ball `.8ball [question]`
 
-##Setup
+## Setup
 Change these values in `settings.conf` before usage:
 
 ```python
@@ -17,13 +17,13 @@ channel = #IrcChannel
 whitelist = nick1,nick2,nick3
 ```
 
-##Usage
+## Usage
 - Run with python `python opbot.py`
 - The bot needs op before it can give op to others
 - The weather function can be called by typing `.weather [city]` in the channel
 - For more information on the weather service, please refer to https://github.com/KarlHerler/yr-py
 
-##Database
+## Database
 - For the weather service we need correct geonames for all cities.
 - City names and geonames are saved in a sqlite3 database. (`geonames.sql`)
 - The database has one table called cities. It consists of two varchar fields: city and geoname.
